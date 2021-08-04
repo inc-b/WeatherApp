@@ -1,5 +1,5 @@
 # WeatherApp
-Javascript app to show weather data for my area 
+Javascript app to show data for my area - sun/moon rise and set times, atmospheric weather, geomagnetic/solar conditions, and a webcam feed from the mountain.
 
 API keys have been replaced with **** in the PHP file
 
