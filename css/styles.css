@@ -1,0 +1,14 @@
+#main-div {
+	margin: auto;
+	text-align: center;
+}
+
+#main-canvas{
+	padding: 0;
+	margin: 0 auto;
+	display: block;
+}
+
+#weather-map {
+	margin: auto;
+}
