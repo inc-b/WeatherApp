@@ -1,3 +1,14 @@
+// Rather than set the height on window size the page should be made of sections
+// Each section height calculated at the start, and section height used to determine height of the widgets inside
+// What are the sections | where should they be in the new order | how much vertical space should they be given (as a percentage of innder window height)?
+// - Temperature/Humidity/Pressure | 3 | 20% 
+// - Wind | 2 | 20%
+// - Sun/Moon data | 1 | 20%
+// - Images | 4 | All the space needed
+// 
+// There should also be a header/footer margin at the top ad bottom of the page, taking up 10%
+// Also a vertical spacer somewhere between 2% and 5% after sun/moon data, and another before the images. 
+
 var testing = false; // Flag to avoid loading online data for local testing
 
 // Array to contain the available wind headings (for converting wind heading in degrees to cardinal directions)
@@ -27,12 +38,14 @@ var cloudMapImg;
 var kMapImg;
 var kGraphImg;
 var kunanyiCamImg;
+var aircheckImg;
 var imagesHeight; // A pixel value calculated once the images are loaded (used to adjust canvas height)
 var weatherMapLoaded = false;
 var cloudMapLoaded = false;
 var kMapLoaded = false;
 var kGraphLoaded = false;
 var kunanyiCamLoaded = false;
+var aricheckLoaded = false;
 
 // Canvas Variables
 var canvas;
@@ -409,19 +422,22 @@ var DisplayImages = function() {
 	} else {
 		console.log("Display images");
 		// Set the pixel value for where each image should start drawing from, height
-		var weatherMapY = imagesY;
+		var aircheckY = imagesY;
+		var weatherMapY = aircheckY + aircheckImg.height;
 		var cloudMapY = weatherMapY + weatherMapImg.height;
 		var kMapY = cloudMapY + cloudMapImg.height;
 		var kGraphY = kMapY + kMapImg.height;
 		var kunanyiCamY = kGraphY + kGraphImg.height;
 
 		// Set the pixel value for where each image should start drawing from, height 
+		var aircheckX = (canvas.width - aircheckImg.width) / 2;
 		var weatherMapX = (canvas.width - weatherMapImg.width) / 2;
 		var cloudMapX = (canvas.width - cloudMapImg.width) / 2;
 		var kMapX = (canvas.width - kMapImg.width) / 2;
 		var kGraphX = (canvas.width - kGraphImg.width) / 2;
 		var kunanyiCamX = (canvas.width - kunanyiCamImg.width) / 2;
 
+		ctx.drawImage(aircheckImg, aircheckX, aircheckY);
 		ctx.drawImage(weatherMapImg, weatherMapX, weatherMapY);
 		ctx.drawImage(cloudMapImg, cloudMapX, cloudMapY);
 		ctx.drawImage(kMapImg, kMapX, kMapY);
@@ -439,6 +455,7 @@ var LoadImageData = function() {
 	} else {
 		console.log("Load images");
 		// Define the image holders
+		aircheckImg = new Image();
 		weatherMapImg = new Image();
 		cloudMapImg = new Image();
 		kMapImg = new Image();
@@ -446,6 +463,15 @@ var LoadImageData = function() {
 		kunanyiCamImg = new Image();
 
 		// Load the images and flag when they're ready (nested so they load one at a time)
+
+		aircheckImg.onload = function() {
+			aricheckLoaded = true;
+			if (minWidth < aircheckImg.width) {
+				minWidth = aircheckImg.width;
+			}
+			CheckImageLoad();
+		}
+
 		weatherMapImg.onload = function() {
 			weatherMapLoaded = true;
 			if (minWidth < weatherMapImg.width) {
@@ -489,13 +515,14 @@ var LoadImageData = function() {
 		kMapImg.src = "https://www.sws.bom.gov.au/Images/Geophysical/Latest%20Conditions/Maps/auskindex.gif";
 		kGraphImg.src = "https://services.swpc.noaa.gov/images/planetary-k-index.gif";
 		kunanyiCamImg.src = "https://hccapps.hobartcity.com.au/webcams/platform";
+		aircheckImg.src = "https://epa.tas.gov.au/air/live/ht_today.jpg";
 	}
 }
 
 // once all the image data is loaded we can start displaying things
 var CheckImageLoad = function() {
 	console.log("Checking loaded images...");
-	if (weatherMapLoaded && cloudMapLoaded && kMapLoaded && kGraphLoaded && kunanyiCamLoaded) {
+	if (weatherMapLoaded && cloudMapLoaded && kMapLoaded && kGraphLoaded && kunanyiCamLoaded && aricheckLoaded) {
 		console.log("All images loaded");
 
 		// Set up the document
@@ -507,7 +534,7 @@ var CheckImageLoad = function() {
 		var newWidth = canvas.width;
 		kunanyiCamImg.height = newHeight;
 		kunanyiCamImg.width = newWidth;
-		imagesHeight = weatherMapImg.height + cloudMapImg.height + kMapImg.height + kGraphImg.height + kunanyiCamImg.height;
+		imagesHeight = weatherMapImg.height + cloudMapImg.height + kMapImg.height + kGraphImg.height + kunanyiCamImg.height + aircheckImg.height;
 
 		// Draw everything
 		UpdateCanvasHeight();
